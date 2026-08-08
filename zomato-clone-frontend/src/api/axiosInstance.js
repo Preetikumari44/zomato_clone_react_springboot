@@ -1,7 +1,12 @@
 import axios from 'axios'
 
+const fallbackBaseURL =
+  typeof window !== 'undefined' && window.location.hostname === 'localhost'
+    ? 'http://localhost:8080/api'
+    : 'https://zomato-clone-backend-xumx.onrender.com/api'
+
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || fallbackBaseURL,
 })
 
 // Attach the JWT to every request. Token is read fresh from localStorage
