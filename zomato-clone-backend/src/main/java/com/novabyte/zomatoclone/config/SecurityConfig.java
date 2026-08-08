@@ -1,5 +1,6 @@
 package com.novabyte.zomatoclone.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -15,6 +16,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.List;
 
 import com.novabyte.zomatoclone.security.JwtAccessDeniedHandler;
 import com.novabyte.zomatoclone.security.JwtAuthEntryPoint;
@@ -35,6 +42,12 @@ public class SecurityConfig {
     private final JwtAuthEntryPoint jwtAuthEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final UserDetailsService userDetailsService;
+
+    // Reads from the CORS_ALLOWED_ORIGINS env var set on Render, e.g.:
+    // CORS_ALLOWED_ORIGINS=http://localhost:5173,https://zomato-clone-react-springboot.vercel.app
+    // Comma-separated, no spaces around commas.
+    @Value("${CORS_ALLOWED_ORIGINS:http://localhost:5173}")
+    private String corsAllowedOrigins;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
                            JwtAuthEntryPoint jwtAuthEntryPoint,
@@ -64,16 +77,45 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
+    /**
+     * CORS configuration source. This is the piece that was missing before —
+     * .cors(cors -> {}) alone does NOT allow any origin, it just enables the
+     * CORS filter with no config, so the Access-Control-Allow-Origin header
+     * never gets added and the browser blocks the preflight request.
+     *
+     * Update allowedOriginPatterns below if your Vercel domain changes.
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        List<String> origins = Arrays.stream(corsAllowedOrigins.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList();
+
+        configuration.setAllowedOriginPatterns(origins);
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setExposedHeaders(List.of("Authorization"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> {})
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(eh -> eh
                         .authenticationEntryPoint(jwtAuthEntryPoint)
                         .accessDeniedHandler(jwtAccessDeniedHandler))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/health", "/api/health").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
