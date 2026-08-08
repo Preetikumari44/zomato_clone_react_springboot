@@ -26,13 +26,13 @@ services:
       - key: JWT_EXPIRATION_MS
         value: 86400000
       - key: CORS_ALLOWED_ORIGINS
-        sync: false
+        value: http://localhost:5173,https://*.vercel.app
       - key: CLOUDINARY_CLOUD_NAME
-        sync: false
+        value: local
       - key: CLOUDINARY_API_KEY
-        sync: false
+        value: local
       - key: CLOUDINARY_API_SECRET
-        sync: false
+        value: local
 
 databases:
   - name: zomato-clone-db
