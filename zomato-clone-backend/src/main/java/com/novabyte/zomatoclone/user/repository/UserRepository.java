@@ -15,10 +15,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
     boolean existsByEmail(String email);
 
-    @Query("SELECT u FROM User u WHERE :keyword IS NULL " +
-           "OR LOWER(u.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-           "OR LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%'))")
-    Page<User> search(@Param("keyword") String keyword, Pageable pageable);
+    @Query("SELECT u FROM User u WHERE " +
+           "LOWER(COALESCE(u.fullName, '')) LIKE :keywordPattern " +
+           "OR LOWER(COALESCE(u.email, '')) LIKE :keywordPattern")
+    Page<User> search(@Param("keywordPattern") String keywordPattern, Pageable pageable);
 
     @Query("SELECT COUNT(DISTINCT u) FROM User u JOIN u.roles r WHERE r.role = :role")
     long countByRole(@Param("role") Role role);

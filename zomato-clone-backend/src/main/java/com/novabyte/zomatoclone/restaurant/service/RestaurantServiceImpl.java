@@ -96,9 +96,9 @@ public class RestaurantServiceImpl implements RestaurantService {
 
     @Override
     public PagedResponse<RestaurantResponse> searchApproved(String keyword, String city, String cuisineType, Pageable pageable) {
-        String kw = StringUtils.hasText(keyword) ? keyword : null;
-        String cty = StringUtils.hasText(city) ? city : null;
-        String cuisine = StringUtils.hasText(cuisineType) ? cuisineType : null;
+        String kw = StringUtils.hasText(keyword) ? "%" + keyword.toLowerCase() + "%" : "%";
+        String cty = StringUtils.hasText(city) ? city.toLowerCase() : "%";
+        String cuisine = StringUtils.hasText(cuisineType) ? cuisineType.toLowerCase() : "%";
 
         Page<Restaurant> page = restaurantRepository.searchApproved(kw, cty, cuisine, pageable);
         return new PagedResponse<>(page.map(this::toDto));

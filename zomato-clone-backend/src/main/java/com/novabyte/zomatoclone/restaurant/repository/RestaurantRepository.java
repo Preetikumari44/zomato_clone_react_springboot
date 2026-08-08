@@ -18,12 +18,12 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
      * no matter what filters are passed.
      */
     @Query("SELECT r FROM Restaurant r WHERE r.status = 'APPROVED' " +
-           "AND (:keyword IS NULL OR LOWER(r.name) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
-           "AND (:city IS NULL OR LOWER(r.city) = LOWER(:city)) " +
-           "AND (:cuisineType IS NULL OR LOWER(r.cuisineType) = LOWER(:cuisineType))")
-    Page<Restaurant> searchApproved(@Param("keyword") String keyword,
-                                     @Param("city") String city,
-                                     @Param("cuisineType") String cuisineType,
+           "AND LOWER(COALESCE(r.name, '')) LIKE :keywordPattern " +
+           "AND LOWER(COALESCE(r.city, '')) LIKE :cityPattern " +
+           "AND LOWER(COALESCE(r.cuisineType, '')) LIKE :cuisinePattern")
+    Page<Restaurant> searchApproved(@Param("keywordPattern") String keywordPattern,
+                                     @Param("cityPattern") String cityPattern,
+                                     @Param("cuisinePattern") String cuisinePattern,
                                      Pageable pageable);
 
     Page<Restaurant> findByOwnerId(Long ownerId, Pageable pageable);

@@ -68,7 +68,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public PagedResponse<ManageUserResponse> listUsers(String keyword, Pageable pageable) {
-        String kw = StringUtils.hasText(keyword) ? keyword : null;
+        String kw = StringUtils.hasText(keyword) ? "%" + keyword.toLowerCase() + "%" : "%";
         Page<User> page = userRepository.search(kw, pageable);
         return new PagedResponse<>(page.map(this::toDto));
     }

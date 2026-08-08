@@ -16,11 +16,11 @@ public interface MenuItemRepository extends JpaRepository<MenuItem, Long> {
 
     @Query("SELECT m FROM MenuItem m WHERE m.restaurant.id = :restaurantId " +
            "AND (:categoryId IS NULL OR m.category.id = :categoryId) " +
-           "AND (:keyword IS NULL OR LOWER(m.name) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+           "AND LOWER(COALESCE(m.name, '')) LIKE :keywordPattern " +
            "AND (:veg IS NULL OR m.veg = :veg)")
     Page<MenuItem> search(@Param("restaurantId") Long restaurantId,
                            @Param("categoryId") Long categoryId,
-                           @Param("keyword") String keyword,
+                           @Param("keywordPattern") String keywordPattern,
                            @Param("veg") Boolean veg,
                            Pageable pageable);
 }

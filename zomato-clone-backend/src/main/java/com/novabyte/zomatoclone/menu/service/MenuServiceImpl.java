@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.novabyte.zomatoclone.common.enums.RestaurantStatus;
@@ -124,7 +125,8 @@ public class MenuServiceImpl implements MenuService {
     public PagedResponse<MenuItemResponse> searchMenu(Long restaurantId, Long categoryId, String keyword,
                                                         Boolean veg, Pageable pageable) {
         findApprovedRestaurant(restaurantId);
-        Page<MenuItem> page = menuItemRepository.search(restaurantId, categoryId, keyword, veg, pageable);
+        String keywordPattern = StringUtils.hasText(keyword) ? "%" + keyword.toLowerCase() + "%" : "%";
+        Page<MenuItem> page = menuItemRepository.search(restaurantId, categoryId, keywordPattern, veg, pageable);
         return new PagedResponse<>(page.map(this::toDto));
     }
 
