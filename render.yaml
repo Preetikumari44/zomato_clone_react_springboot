@@ -5,7 +5,7 @@ services:
     plan: free
     dockerfilePath: ./zomato-clone-backend/Dockerfile
     dockerContext: ./zomato-clone-backend
-    healthCheckPath: /api/restaurants
+    healthCheckPath: /health
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
