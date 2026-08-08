@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  h1, h2, h3 { @apply font-display; }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-md bg-marigold px-4 py-2 text-sm font-semibold text-ink
+           transition-colors hover:bg-marigold-dark focus-visible:outline focus-visible:outline-2
+           focus-visible:outline-offset-2 focus-visible:outline-marigold-dark disabled:opacity-50 disabled:pointer-events-none;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-md border border-line bg-white px-4 py-2 text-sm font-semibold
+           text-ink transition-colors hover:bg-base focus-visible:outline focus-visible:outline-2
+           focus-visible:outline-offset-2 focus-visible:outline-ink disabled:opacity-50 disabled:pointer-events-none;
+  }
+  .btn-danger {
+    @apply inline-flex items-center justify-center rounded-md bg-chili px-4 py-2 text-sm font-semibold text-white
+           transition-colors hover:opacity-90 disabled:opacity-50 disabled:pointer-events-none;
+  }
+  .card {
+    @apply rounded-lg border border-line bg-white p-4 shadow-sm;
+  }
+  .input {
+    @apply w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink placeholder:text-ink/40
+           focus:outline-none focus:ring-2 focus:ring-marigold;
+  }
+  .label {
+    @apply mb-1 block text-sm font-medium text-ink/70;
+  }
+  .price {
+    @apply font-mono text-sm;
+  }
+  /* Signature motif: a ticket-style perforated divider, used on the cart/order summary */
+  .perforated-divider {
+    @apply h-3 bg-perforation bg-perforation bg-repeat-x bg-center;
+  }
+}

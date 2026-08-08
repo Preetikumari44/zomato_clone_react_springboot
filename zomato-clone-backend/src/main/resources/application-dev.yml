@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:zomato_clone;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    show-sql: true
+    database-platform: org.hibernate.dialect.H2Dialect
+app:
+  jwt:
+    secret: local-development-secret-change-before-production
+  cloudinary:
+    cloud-name: local
+    api-key: local
+    api-secret: local
+logging:
+  level:
+    com.novabyte.zomatoclone: DEBUG
+    org.springframework.security: DEBUG

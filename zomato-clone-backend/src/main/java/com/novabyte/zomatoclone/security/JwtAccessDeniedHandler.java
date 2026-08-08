@@ -1,0 +1,44 @@
+package com.novabyte.zomatoclone.security;
+
+import java.io.IOException;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.novabyte.zomatoclone.common.exception.ErrorResponse;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+/**
+ * Mirrors JwtAuthEntryPoint but for the "authenticated, wrong role" case —
+ * i.e. a hasRole() URL matcher rejection at the filter-chain level (before
+ * DispatcherServlet), which GlobalExceptionHandler can't see. @PreAuthorize
+ * rejections at the controller level DO reach GlobalExceptionHandler and
+ * are handled there instead.
+ */
+@Component
+public class JwtAccessDeniedHandler implements AccessDeniedHandler {
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Override
+    public void handle(HttpServletRequest request, HttpServletResponse response,
+                        AccessDeniedException accessDeniedException) throws IOException {
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+
+        ErrorResponse body = new ErrorResponse(
+                HttpStatus.FORBIDDEN.value(),
+                HttpStatus.FORBIDDEN.getReasonPhrase(),
+                "Your current active role does not have access to this resource",
+                request.getRequestURI(),
+                null);
+
+        response.getWriter().write(objectMapper.writeValueAsString(body));
+    }
+}
